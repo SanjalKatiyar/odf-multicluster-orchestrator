@@ -29,9 +29,11 @@ import (
 
 	tokenexchange "github.com/red-hat-storage/odf-multicluster-orchestrator/addons/token-exchange"
 	multiclusterv1alpha1 "github.com/red-hat-storage/odf-multicluster-orchestrator/api/v1alpha1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	addonapiv1alpha1 "open-cluster-management.io/api/addon/v1alpha1"
+	clusterv1 "open-cluster-management.io/api/cluster/v1"
 )
 
 var (
@@ -69,8 +71,37 @@ var _ = Describe("ManagedClusterAddOn creation, updation and deletion", func() {
 			}
 			var mcAddOn1 addonapiv1alpha1.ManagedClusterAddOn
 			var mcAddOn2 addonapiv1alpha1.ManagedClusterAddOn
+			managedcluster1 := clusterv1.ManagedCluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cluster1",
+				},
+			}
+			managedcluster2 := clusterv1.ManagedCluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cluster2",
+				},
+			}
+			ns1 := v1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cluster1",
+				},
+			}
+			ns2 := v1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cluster2",
+				},
+			}
 			By("creating MirrorPeer. Also, this should automatically create ManagedClusterAddOn", func() {
-				err := k8sClient.Create(context.TODO(), newMirrorPeer, &client.CreateOptions{})
+				err := k8sClient.Create(context.TODO(), &managedcluster1, &client.CreateOptions{})
+				Expect(err).NotTo(HaveOccurred())
+				err = k8sClient.Create(context.TODO(), &managedcluster2, &client.CreateOptions{})
+				Expect(err).NotTo(HaveOccurred())
+				err = k8sClient.Create(context.TODO(), &ns1, &client.CreateOptions{})
+				Expect(err).NotTo(HaveOccurred())
+				err = k8sClient.Create(context.TODO(), &ns2, &client.CreateOptions{})
+				Expect(err).NotTo(HaveOccurred())
+
+				err = k8sClient.Create(context.TODO(), newMirrorPeer, &client.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred())
 			})
 			By("polling for the created ManagedClusterAddOn", func() {
@@ -100,6 +131,14 @@ var _ = Describe("ManagedClusterAddOn creation, updation and deletion", func() {
 				err = k8sClient.Delete(context.TODO(), &mcAddOn2, &client.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred())
 				err = k8sClient.Delete(context.TODO(), newMirrorPeer, &client.DeleteOptions{})
+				Expect(err).NotTo(HaveOccurred())
+				err = k8sClient.Delete(context.TODO(), &ns1, &client.DeleteOptions{})
+				Expect(err).NotTo(HaveOccurred())
+				err = k8sClient.Delete(context.TODO(), &ns2, &client.DeleteOptions{})
+				Expect(err).NotTo(HaveOccurred())
+				err = k8sClient.Delete(context.TODO(), &managedcluster1, &client.DeleteOptions{})
+				Expect(err).NotTo(HaveOccurred())
+				err = k8sClient.Delete(context.TODO(), &managedcluster1, &client.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})

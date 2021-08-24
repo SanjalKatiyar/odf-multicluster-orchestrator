@@ -161,7 +161,7 @@ spec:
                 - /manager
                 env:
                 - name: TOKEN_EXCHANGE_IMAGE
-                  value: quay.io/ocs-dev/odf-multicluster-orchestrator:latest
+                  value: quay.io/skatiyar/odf-multicluster-orchestrator:latestbuild1.2
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
@@ -170,7 +170,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-                image: quay.io/ocs-dev/odf-multicluster-orchestrator:latest
+                image: quay.io/skatiyar/odf-multicluster-orchestrator:latestbuild1.2
                 livenessProbe:
                   httpGet:
                     path: /healthz
